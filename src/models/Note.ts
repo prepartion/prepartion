@@ -6,9 +6,10 @@ export interface INote extends Document {
   classId: mongoose.Types.ObjectId;
   streamId?: mongoose.Types.ObjectId;
   subjectId: mongoose.Types.ObjectId;
-  chapterId: mongoose.Types.ObjectId;
+  chapterId?: mongoose.Types.ObjectId; // Ab yeh optional hai (Bundle ke liye)
   isFree: boolean;
   price: number;
+  originalPrice: number; // Naya field kante hue price ke liye (MRP)
   pdfUrl: string;
   thumbnailUrl: string;
 }
@@ -17,17 +18,15 @@ const NoteSchema: Schema = new Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   
-  // Hierarchy Links
   classId: { type: Schema.Types.ObjectId, ref: 'Class', required: true },
-  streamId: { type: Schema.Types.ObjectId, ref: 'Stream' }, // Optional
+  streamId: { type: Schema.Types.ObjectId, ref: 'Stream' }, 
   subjectId: { type: Schema.Types.ObjectId, ref: 'Subject', required: true },
-  chapterId: { type: Schema.Types.ObjectId, ref: 'Chapter', required: true },
+  chapterId: { type: Schema.Types.ObjectId, ref: 'Chapter' }, // Bundle mode me yeh khali rahega
   
-  // Pricing
   isFree: { type: Boolean, default: false },
-  price: { type: Number, default: 0 }, // Agar isFree true hai, toh price 0 hogi
+  price: { type: Number, default: 0 }, 
+  originalPrice: { type: Number, default: 0 }, // MRP jise hum kaat kar dikhayenge
   
-  // Media Files (Cloudinary Links)
   pdfUrl: { type: String, required: true },
   thumbnailUrl: { type: String, required: true },
 }, { timestamps: true });

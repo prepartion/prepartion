@@ -13,8 +13,9 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
   const [note, setNote] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
-  const [hasPurchased, setHasPurchased] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState(false); // Database se check karega ki kharida hai ya nahi
   
+  // Payment & Coupon States
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [couponCode, setCouponCode] = useState("");
@@ -23,6 +24,7 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
   const router = useRouter();
 
   useEffect(() => {
+    // 1. User check karna aur uski purchase history nikalna
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       
@@ -41,6 +43,7 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
       }
     });
 
+    // 2. Note ki details nikalna
     const fetchNoteDetails = async () => {
       try {
         const res = await fetch("/api/notes"); 
@@ -60,9 +63,11 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
     return () => unsubscribe();
   }, [noteId]);
 
+  // --- Calculate final price based on discount ---
   const discountAmount = discountApplied > 0 && note ? (note.price * discountApplied) / 100 : 0;
   const finalPrice = note ? Math.max(0, note.price - discountAmount) : 0;
 
+  // --- FREE / PURCHASED NOTES LOGIC (Read & Download) ---
   const handleFreeAccess = (action: "read" | "download") => {
     if (!user) {
       router.push(`/login?redirect=/subject/${noteId}`);
@@ -82,17 +87,35 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
     }
   };
 
-  const handleApplyCoupon = () => {
+  // --- REAL-TIME COUPON LOGIC (REAL DATABASE) ---
+  const handleApplyCoupon = async () => {
     if (!couponCode) return;
-    if (couponCode.toUpperCase() === "EDUNOTES50") {
-      setDiscountApplied(50);
-      setMessage({ type: "success", text: "Coupon Applied Successfully! 50% OFF" });
-    } else {
+    
+    setMessage({ type: "success", text: "Verifying coupon..." });
+    
+    try {
+      const res = await fetch("/api/coupons/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode })
+      });
+      
+      const data = await res.json();
+
+      if (res.ok && data.valid) {
+        setDiscountApplied(data.discountPercentage);
+        setMessage({ type: "success", text: `Coupon Applied Successfully! ${data.discountPercentage}% OFF 🎉` });
+      } else {
+        setDiscountApplied(0);
+        setMessage({ type: "error", text: data.message || "Invalid or expired coupon code." });
+      }
+    } catch (error) {
       setDiscountApplied(0);
-      setMessage({ type: "error", text: "Invalid or expired coupon code." });
+      setMessage({ type: "error", text: "Failed to verify coupon. Try again." });
     }
   };
 
+  // --- RAZORPAY PAYMENT LOGIC ---
   const handlePurchase = async () => {
     if (!user) {
       router.push(`/login?redirect=/subject/${noteId}`);
@@ -102,6 +125,7 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
     setMessage({ type: "", text: "" });
 
     try {
+      // 1. Load Razorpay Script
       const loadScript = () => {
         return new Promise((resolve) => {
           const script = document.createElement("script");
@@ -114,11 +138,12 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
       
       const res = await loadScript();
       if (!res) {
-        setMessage({ type: "error", text: "Razorpay SDK failed to load." });
+        setMessage({ type: "error", text: "Razorpay SDK failed to load. Are you online?" });
         setIsProcessing(false);
         return;
       }
 
+      // 2. Create Order on Server
       setMessage({ type: "success", text: "Initiating secure payment..." });
       const orderRes = await fetch("/api/razorpay/order", {
         method: "POST",
@@ -129,14 +154,16 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
       
       if (!orderRes.ok) throw new Error("Could not create order");
 
+      // 3. Open Razorpay Popup
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
         amount: orderData.order.amount,
         currency: "INR",
-        name: "EduNotes",
+        name: "Prepartion", // 🌟 BRAND UPDATE
         description: `Purchase: ${note.title}`,
         order_id: orderData.order.id,
         handler: async function (response: any) {
+          // 4. Verify Payment after success
           setMessage({ type: "success", text: "Payment received! Verifying..." });
           
           try {
@@ -155,7 +182,9 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
             const verifyData = await verifyRes.json();
             if (verifyData.success) {
               setMessage({ type: "success", text: "Payment Successful! Note unlocked." });
-              setHasPurchased(true); 
+              setHasPurchased(true); // Isse download buttons dikhne lagenge
+              alert("Payment Verified! Prepartion unlocked the material.");
+              window.location.reload(); 
             } else {
               setMessage({ type: "error", text: "Payment verification failed." });
             }
@@ -170,7 +199,9 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
           email: user.email || "",
           contact: user.phoneNumber || "",
         },
-        theme: { color: "#f58a33" },
+        theme: {
+          color: "#f58a33", 
+        },
         modal: {
           ondismiss: function() {
             setIsProcessing(false);
@@ -193,6 +224,7 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
     }
   };
 
+  // --- RENDER UI ---
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -215,6 +247,7 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
     <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-5xl mx-auto">
         
+        {/* Breadcrumb */}
         <div className="text-sm text-slate-500 mb-8 flex items-center gap-2 font-medium">
           <button onClick={() => router.push("/")} className="hover:text-blue-600">Home</button>
           <span>/</span>
@@ -225,6 +258,7 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
 
         <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden flex flex-col md:flex-row">
           
+          {/* LEFT SIDE: Note Details */}
           <div className="p-8 md:p-12 flex-1 border-b md:border-b-0 md:border-r border-slate-100">
             {!note.chapterId && (
               <div className="bg-orange-100 text-orange-700 text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full inline-block mb-4">
@@ -265,6 +299,7 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
             </div>
           </div>
 
+          {/* RIGHT SIDE: Payment / Download Action Area */}
           <div className="p-8 md:p-10 w-full md:w-[400px] bg-slate-50 flex flex-col justify-center shrink-0">
             
             <div className="text-center mb-8">
@@ -272,6 +307,7 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
                 {note.isFree || hasPurchased ? "Access Material" : "Total Price"}
               </p>
               
+              {/* PRICE DISPLAY */}
               {note.isFree ? (
                  <div className="text-5xl font-extrabold text-green-600">FREE</div>
               ) : hasPurchased ? (
@@ -281,9 +317,11 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
                  </div>
               ) : (
                  <div className="flex flex-col items-center">
+                    {/* MRP / Original Price */}
                     {note.originalPrice > note.price && discountApplied === 0 && (
                       <span className="text-lg text-slate-400 line-through font-medium mb-1">₹{note.originalPrice}</span>
                     )}
+                    {/* Discounted Price Cut */}
                     {discountApplied > 0 && (
                       <span className="text-lg text-slate-400 line-through font-medium mb-1">₹{note.price}</span>
                     )}
@@ -296,6 +334,7 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
               )}
             </div>
 
+            {/* MESSAGES */}
             {message.text && (
               <div className={`p-4 rounded-xl mb-6 text-sm font-semibold border ${
                 message.type === 'error' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-green-50 text-green-700 border-green-200'
@@ -304,7 +343,9 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
               </div>
             )}
 
+            {/* CONDITIONAL ACTION BUTTONS */}
             {note.isFree || hasPurchased ? (
+              // FREE OR PURCHASED NOTE VIEW
               <div className="flex flex-col gap-4">
                  <button 
                   onClick={() => handleFreeAccess('read')}
@@ -320,7 +361,9 @@ export default function SubjectDetailsPage({ params }: { params: Promise<{ id: s
                  </button>
               </div>
             ) : (
+              // PAID NOTE VIEW
               <div className="flex flex-col gap-5">
+                 {/* COUPON SECTION */}
                  {!discountApplied && (
                    <div className="relative">
                      <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-white focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition">

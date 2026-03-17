@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, School, BookOpen, FileText, IndianRupee, Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { 
+  Users, UploadCloud, School, IndianRupee, 
+  Loader2, TrendingUp, Activity, BookOpen,
+  FileText, ArrowRight // Yeh imports miss ho gaye the
+} from "lucide-react";
 
 export default function AdminDashboardHome() {
   const [stats, setStats] = useState({
-    totalClasses: 0,
-    totalSubjects: 0,
+    totalStudents: 0,
     totalNotes: 0,
-    totalUsers: 0,
+    totalClasses: 0,
     totalRevenue: 0
   });
   const [loading, setLoading] = useState(true);
@@ -17,11 +20,18 @@ export default function AdminDashboardHome() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("/api/admin/stats");
+        const res = await fetch('/api/admin/stats');
         const data = await res.json();
-        if (res.ok) setStats(data);
+        if (res.ok) {
+          setStats({
+            totalStudents: data.totalStudents || 0,
+            totalNotes: data.totalNotes || 0,
+            totalClasses: data.totalClasses || 0,
+            totalRevenue: data.totalRevenue || 0
+          });
+        }
       } catch (error) {
-        console.error("Failed to fetch stats");
+        console.error("Failed to fetch dashboard stats");
       } finally {
         setLoading(false);
       }
@@ -32,69 +42,87 @@ export default function AdminDashboardHome() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[70vh]">
+      <div className="flex h-[70vh] items-center justify-center">
         <Loader2 className="animate-spin text-blue-600" size={48} />
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-slate-800">Dashboard Overview</h1>
-        <p className="text-slate-500 mt-1">Welcome back, Admin. Here is what's happening on your platform today.</p>
+    <div className="p-4 sm:p-8 max-w-7xl mx-auto font-sans">
+      
+      {/* Welcome Banner */}
+      <div className="bg-slate-900 rounded-[2rem] p-8 sm:p-10 mb-10 shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 opacity-10 pointer-events-none">
+          <Activity size={300} strokeWidth={1} className="text-blue-500" />
+        </div>
+        <div className="relative z-10">
+          <h1 className="text-3xl sm:text-4xl font-black text-white mb-2 tracking-tight">
+            Admin Overview 🚀
+          </h1>
+          <p className="text-slate-400 font-medium text-lg">
+            Here is what's happening with EduNotes today.
+          </p>
+        </div>
       </div>
 
-      {/* STATS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         
-        {/* Total Users Card */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition">
-          <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0">
-            <Users size={28} />
+        {/* TOTAL STUDENTS */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-lg transition-shadow duration-300 group">
+          <div className="flex justify-between items-start mb-4">
+            <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Users size={28} />
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Total Students</p>
-            <h3 className="text-3xl font-extrabold text-slate-800">{stats.totalUsers}</h3>
-          </div>
+          <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Total Students</p>
+          <h3 className="text-4xl font-black text-slate-800">{stats.totalStudents}</h3>
         </div>
 
-        {/* Total Notes Card */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition">
-          <div className="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center shrink-0">
-            <FileText size={28} />
+        {/* UPLOADED NOTES */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-lg transition-shadow duration-300 group">
+          <div className="flex justify-between items-start mb-4">
+            <div className="w-14 h-14 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <UploadCloud size={28} />
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Uploaded Notes</p>
-            <h3 className="text-3xl font-extrabold text-slate-800">{stats.totalNotes}</h3>
-          </div>
+          <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Uploaded Notes</p>
+          <h3 className="text-4xl font-black text-slate-800">{stats.totalNotes}</h3>
         </div>
 
-        {/* Total Classes Card */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition">
-          <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
-            <School size={28} />
+        {/* TOTAL CLASSES */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-lg transition-shadow duration-300 group">
+          <div className="flex justify-between items-start mb-4">
+            <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <School size={28} />
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Total Classes</p>
-            <h3 className="text-3xl font-extrabold text-slate-800">{stats.totalClasses}</h3>
-          </div>
+          <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Total Classes</p>
+          <h3 className="text-4xl font-black text-slate-800">{stats.totalClasses}</h3>
         </div>
 
-        {/* Total Revenue Card */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition">
-          <div className="w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center shrink-0">
-            <IndianRupee size={28} />
+        {/* TOTAL REVENUE */}
+        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-shadow duration-300 group relative overflow-hidden text-white">
+          <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-4 translate-y-4">
+            <TrendingUp size={120} />
           </div>
-          <div>
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Total Revenue</p>
-            <h3 className="text-3xl font-extrabold text-slate-800">₹{stats.totalRevenue}</h3>
+          <div className="relative z-10">
+            <div className="flex justify-between items-start mb-4">
+              <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-inner">
+                <IndianRupee size={28} strokeWidth={2.5}/>
+              </div>
+            </div>
+            <p className="text-sm font-bold text-emerald-100 uppercase tracking-wider mb-1">Total Revenue</p>
+            <h3 className="text-4xl font-black drop-shadow-sm flex items-center">
+              ₹{stats.totalRevenue.toLocaleString("en-IN")}
+            </h3>
           </div>
         </div>
 
       </div>
 
-      {/* QUICK ACTIONS SECTION */}
+      {/* QUICK ACTIONS SECTION (Properly placed outside the grid) */}
       <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
         <h2 className="text-xl font-bold text-slate-800 mb-6">Quick Actions</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -131,6 +159,7 @@ export default function AdminDashboardHome() {
 
         </div>
       </div>
+      
     </div>
   );
 }

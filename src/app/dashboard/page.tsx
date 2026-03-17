@@ -16,15 +16,14 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Data States
   const [classes, setClasses] = useState<any[]>([]);
   const [streams, setStreams] = useState<any[]>([]);
   const [subjects, setSubjects] = useState<any[]>([]);
   const [notes, setNotes] = useState<any[]>([]); 
   const [myPurchasedNotes, setMyPurchasedNotes] = useState<any[]>([]);
 
-  // Navigation States
-  const [activeTab, setActiveTab] = useState<"purchases" | "explore">("purchases"); 
+  // 🌟 FIX: Ab default tab "explore" khulega
+  const [activeTab, setActiveTab] = useState<"purchases" | "explore">("explore"); 
   const [selectedClass, setSelectedClass] = useState<any>(null);
   const [selectedStream, setSelectedStream] = useState<any>(null);
   const [selectedSubject, setSelectedSubject] = useState<any>(null);
@@ -74,7 +73,7 @@ export default function StudentDashboard() {
   }, [router]);
 
   const handleLogout = async () => {
-    if (window.confirm("Are you sure you want to log out?")) {
+    if (window.confirm("Are you sure you want to log out from Prepartion?")) {
       await signOut(auth);
       router.push("/");
     }
@@ -125,7 +124,6 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen bg-[#f4f7f9] font-sans flex flex-col selection:bg-indigo-500 selection:text-white">
       
-      {/* 🌟 Premium Glassmorphism Navbar */}
       <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-white/40 shadow-[0_4px_30px_rgba(0,0,0,0.03)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           
@@ -134,25 +132,25 @@ export default function StudentDashboard() {
               <GraduationCap size={24} className="text-white" />
             </div>
             <span className="hidden sm:inline font-extrabold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 tracking-tight">
-              EduNotes
+              Prepartion
             </span>
           </Link>
           
-          {/* Sleek Segmented Control Tab Switcher */}
           <div className="flex bg-slate-100/80 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/50 shadow-inner w-full max-w-[280px] sm:max-w-sm mx-4 relative">
-            <button 
-              onClick={() => setActiveTab("purchases")}
-              className={`flex-1 flex items-center justify-center gap-2 px-3 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 z-10 ${activeTab === "purchases" ? "text-indigo-700 bg-white shadow-sm ring-1 ring-slate-900/5" : "text-slate-500 hover:text-slate-800"}`}
-            >
-              <LibraryBig size={16} className={activeTab === "purchases" ? "text-indigo-600" : ""} />
-              Library
-            </button>
+            {/* 🌟 FIX: Explore button ko pehle kar diya */}
             <button 
               onClick={() => setActiveTab("explore")}
               className={`flex-1 flex items-center justify-center gap-2 px-3 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 z-10 ${activeTab === "explore" ? "text-indigo-700 bg-white shadow-sm ring-1 ring-slate-900/5" : "text-slate-500 hover:text-slate-800"}`}
             >
               <Compass size={16} className={activeTab === "explore" ? "text-indigo-600" : ""} />
               Explore
+            </button>
+            <button 
+              onClick={() => setActiveTab("purchases")}
+              className={`flex-1 flex items-center justify-center gap-2 px-3 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 z-10 ${activeTab === "purchases" ? "text-indigo-700 bg-white shadow-sm ring-1 ring-slate-900/5" : "text-slate-500 hover:text-slate-800"}`}
+            >
+              <LibraryBig size={16} className={activeTab === "purchases" ? "text-indigo-600" : ""} />
+              Library
             </button>
           </div>
 
@@ -164,10 +162,8 @@ export default function StudentDashboard() {
 
       <main className="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         
-        {/* 🌟 Premium Hero Banner with Mesh-like Gradient */}
         <div className="relative rounded-[2.5rem] p-8 sm:p-12 text-white shadow-2xl shadow-indigo-900/20 mb-10 overflow-hidden bg-gradient-to-br from-slate-900 via-[#1a1c2c] to-indigo-950 border border-indigo-500/20">
           
-          {/* Abstract Glowing Orbs Background */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
             <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/30 rounded-full blur-[100px]"></div>
             <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-violet-600/20 rounded-full blur-[80px]"></div>
@@ -183,7 +179,7 @@ export default function StudentDashboard() {
                 Welcome back, <br className="hidden sm:block" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-violet-300">Scholar!</span>
               </h1>
-              <p className="text-indigo-200 text-sm sm:text-lg max-w-md font-medium">Continue your learning journey with premium study materials.</p>
+              <p className="text-indigo-200 text-sm sm:text-lg max-w-md font-medium">Prepartion: Your Path to Achievement starts with premium study materials.</p>
             </div>
             
             <div className="relative z-10 bg-white/10 p-5 rounded-3xl flex items-center gap-4 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.12)] w-full sm:w-auto hover:bg-white/15 transition duration-300">
@@ -198,7 +194,6 @@ export default function StudentDashboard() {
           </div>
         </div>
 
-        {/* ================= MY PURCHASES TAB ================= */}
         {activeTab === "purchases" ? (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center gap-3 mb-8">
@@ -275,10 +270,7 @@ export default function StudentDashboard() {
             )}
           </div>
         ) : (
-          /* ================= EXPLORE TAB ================= */
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            
-            {/* Elegant Breadcrumbs */}
             <div className="flex items-center flex-wrap gap-2 text-xs sm:text-sm font-bold text-slate-500 mb-8 sm:mb-10 bg-white p-4 rounded-2xl shadow-[0_2px_10px_rgb(0,0,0,0.02)] border border-slate-100">
               <button onClick={goBackToClasses} className={`hover:text-indigo-600 transition flex items-center gap-1 ${!selectedClass ? 'text-indigo-600' : ''}`}><Compass size={16}/> Explore</button>
               
@@ -308,7 +300,6 @@ export default function StudentDashboard() {
               )}
             </div>
 
-            {/* LEVEL 1: CLASSES */}
             {!selectedClass && (
               <div>
                 <h2 className="text-2xl sm:text-3xl font-black text-slate-800 mb-8 tracking-tight">Select Your Level</h2>
@@ -329,7 +320,6 @@ export default function StudentDashboard() {
               </div>
             )}
 
-            {/* LEVEL 2: STREAMS */}
             {selectedClass && selectedClass.hasStream && !selectedStream && (
               <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                 <div className="flex items-center gap-4 mb-8">
@@ -353,7 +343,6 @@ export default function StudentDashboard() {
               </div>
             )}
 
-            {/* LEVEL 3: SUBJECTS */}
             {selectedClass && (!selectedClass.hasStream || selectedStream) && !selectedSubject && (
               <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                 <div className="flex items-center gap-4 mb-8">
@@ -383,7 +372,6 @@ export default function StudentDashboard() {
               </div>
             )}
 
-            {/* LEVEL 4: BUNDLES & CHAPTERS */}
             {selectedSubject && (
               <div className="animate-in fade-in zoom-in-95 duration-500">
                 <div className="flex items-center gap-4 mb-10">
@@ -391,7 +379,6 @@ export default function StudentDashboard() {
                   <h2 className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight">{selectedSubject.name} Materials</h2>
                 </div>
 
-                {/* FULL BUNDLE CARD */}
                 {fullBundleNote && (
                   <div className="mb-12 rounded-[2.5rem] p-1.5 shadow-2xl shadow-orange-500/20 bg-gradient-to-br from-orange-400 via-rose-500 to-purple-600 hover:shadow-orange-500/30 transition duration-500">
                     <div className="bg-white/95 backdrop-blur-3xl rounded-[2.2rem] p-6 sm:p-10 flex flex-col md:flex-row items-center gap-8 sm:gap-12 relative overflow-hidden">
@@ -440,7 +427,6 @@ export default function StudentDashboard() {
                   </div>
                 )}
 
-                {/* CHAPTERS LIST */}
                 <div>
                   <h3 className="text-2xl font-black text-slate-800 mb-8 flex items-center gap-3">
                     <FileText className="text-indigo-500"/> Individual Chapters

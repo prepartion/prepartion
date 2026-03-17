@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { 
   LayoutDashboard, 
   School, 
@@ -15,13 +15,13 @@ import {
   LogOut, 
   Menu, 
   X, 
-  GraduationCap
+  GraduationCap,
+  Tag // Tag icon ko yahan clean tarike se import kar liya
 } from "lucide-react";
 import { auth } from "@/src/lib/firebase";
 import { signOut } from "firebase/auth";
-import { useRouter } from "next/navigation";
 
-// Naye Hierarchy ke hisaab se saare links
+// Naye Hierarchy ke hisaab se saare links (Coupons add kar diya)
 const sidebarLinks = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Manage Classes", href: "/admin/dashboard/classes", icon: School },
@@ -29,6 +29,7 @@ const sidebarLinks = [
   { name: "Manage Subjects", href: "/admin/dashboard/subjects", icon: BookOpen },
   { name: "Manage Chapters", href: "/admin/dashboard/chapters", icon: FileText },
   { name: "Manage Notes", href: "/admin/dashboard/notes", icon: UploadCloud },
+  { name: "Manage Coupons", href: "/admin/dashboard/coupons", icon: Tag }, // Coupons add hua tha pichle step me
   { name: "Students & Users", href: "/admin/dashboard/users", icon: Users },
   { name: "Payments & Sales", href: "/admin/dashboard/payments", icon: IndianRupee },
 ];
@@ -39,7 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
 
   const handleLogout = async () => {
-    if (window.confirm("Are you sure you want to log out from Admin Panel?")) {
+    if (window.confirm("Are you sure you want to log out from Prepartion Admin Panel?")) { // 🌟 BRAND UPDATE
       await signOut(auth);
       router.push("/admin/login");
     }
@@ -62,10 +63,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Admin Logo Area */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-slate-800 bg-slate-950/50">
           <div className="flex items-center gap-3 text-white font-extrabold text-2xl tracking-tight">
+            {/* Concept 1 Visual Representation placeholder descriptions */}
             <div className="bg-blue-600 p-2 rounded-xl">
               <GraduationCap size={24} className="text-white" />
             </div>
-            <span>Admin<span className="text-blue-500">Panel</span></span>
+            {/* 🌟 UPDATED BRAND NAME: Prepartion */}
+            <span>Prepartion<span className="text-blue-500">Panel</span></span>
           </div>
           <button className="lg:hidden text-slate-400 hover:text-white" onClick={() => setIsMobileMenuOpen(false)}>
             <X size={24} />
@@ -108,7 +111,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-500 transition-colors font-semibold group"
           >
             <LogOut size={20} className="group-hover:text-red-500 transition-colors" />
-            Logout Admin
+            Logout Prepartion Admin
           </button>
         </div>
       </aside>
@@ -119,8 +122,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Mobile Header */}
         <header className="lg:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 shadow-sm z-30 shrink-0">
           <div className="flex items-center gap-2 text-slate-800 font-extrabold text-xl">
+            {/* Concept 1 Icon Description */}
             <GraduationCap size={24} className="text-blue-600" />
-            <span>EduNotes</span>
+            {/* 🌟 Updated Name: Prepartion */}
+            <span>Prepartion</span>
           </div>
           <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 bg-slate-100 text-slate-600 rounded-lg">
             <Menu size={24} />

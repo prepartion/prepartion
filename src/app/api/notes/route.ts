@@ -1,13 +1,19 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/src/lib/mongodb';
+import dbConnect from '@/src/lib/mongodb'; 
 
-// Standard tareeke se saare models import kar liye hain (Populate ke liye zaroori hai)
+// 🚨 Caching Fix
+export const dynamic = 'force-dynamic';
+
+// 🚨 Path Fix: Sabme @/src/ lagaya hai taaki module not found error na aaye
 import NoteModel from '@/src/models/Note';
-import ChapterModel from '@/src/models/Chapter';
-import SubjectModel from '@/src/models/Subject';
-import ClassModel from '@/src/models/Class';
-import StreamModel from '@/src/models/Stream';
+import '@/src/models/Chapter';
+import '@/src/models/Subject';
+import '@/src/models/Class';
+import '@/src/models/Stream';
 
+// ==========================================
+// 1. GET API
+// ==========================================
 export async function GET() {
   try {
     await dbConnect();
@@ -20,10 +26,14 @@ export async function GET() {
       
     return NextResponse.json({ notes }, { status: 200 });
   } catch (error: any) {
+    console.error("Notes GET Error:", error);
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
 
+// ==========================================
+// 2. POST API
+// ==========================================
 export async function POST(request: Request) {
   try {
     await dbConnect();
@@ -33,7 +43,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
 
-    // Agar chapterId 'BUNDLE' hai, toh database mein use save nahi karenge (matlab full subject)
     const finalChapterId = data.chapterId === "BUNDLE" ? undefined : data.chapterId;
 
     const newNote = await NoteModel.create({
@@ -52,10 +61,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: 'Note uploaded successfully', note: newNote }, { status: 201 });
   } catch (error: any) {
+    console.error("Notes POST Error:", error);
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
 
+// ==========================================
+// 3. PUT API
+// ==========================================
 export async function PUT(request: Request) {
   try {
     await dbConnect();
@@ -85,10 +98,14 @@ export async function PUT(request: Request) {
     
     return NextResponse.json({ message: 'Note updated', note: updatedNote }, { status: 200 });
   } catch (error: any) {
+    console.error("Notes PUT Error:", error);
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
 
+// ==========================================
+// 4. DELETE API
+// ==========================================
 export async function DELETE(request: Request) {
   try {
     await dbConnect();
@@ -100,6 +117,7 @@ export async function DELETE(request: Request) {
     await NoteModel.findByIdAndDelete(id);
     return NextResponse.json({ message: 'Note deleted successfully' }, { status: 200 });
   } catch (error: any) {
+    console.error("Notes DELETE Error:", error);
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }

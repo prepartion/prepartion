@@ -111,12 +111,13 @@ export default function Home() {
           </nav>
           <div className="flex gap-4">
             {user ? (
-              <Link href="/dashboard" className="bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300">
+              <Link href="/dashboard" className="bg-slate-900 text-white font-bold px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 text-sm sm:text-base">
                 Dashboard
               </Link>
             ) : (
-              <Link href="/login" className="bg-indigo-50 text-indigo-600 font-bold px-6 py-2.5 rounded-xl hover:bg-indigo-600 hover:text-white transition-all duration-300">
-                Login / Signup
+              <Link href="/login" className="bg-indigo-50 text-indigo-600 font-bold px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl hover:bg-indigo-600 hover:text-white transition-all duration-300 text-sm sm:text-base whitespace-nowrap">
+                <span className="sm:hidden">Login</span>
+                <span className="hidden sm:inline">Login / Signup</span>
               </Link>
             )}
           </div>

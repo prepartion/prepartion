@@ -30,7 +30,6 @@ const sidebarLinks = [
   { name: "Manage Chapters", href: "/admin/dashboard/chapters", icon: FileText },
   { name: "Manage Notes", href: "/admin/dashboard/notes", icon: UploadCloud },
   { name: "Manage Coupons", href: "/admin/dashboard/coupons", icon: Tag }, // Coupons add hua tha pichle step me
-  { name: "Students & Users", href: "/admin/dashboard/users", icon: Users },
   { name: "Payments & Sales", href: "/admin/dashboard/payments", icon: IndianRupee },
 ];
 

@@ -22,7 +22,8 @@ export async function GET() {
       .populate('streamId', 'name')
       .populate('subjectId', 'name')
       .populate('chapterId', 'name')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
       
     return NextResponse.json({ notes }, { status: 200 });
   } catch (error: any) {

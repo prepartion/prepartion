@@ -156,7 +156,7 @@ export default function LoginPage() {
 
       <Link href="/" className="mb-8 flex items-center gap-2 text-[#1a4a8d] hover:opacity-80 transition z-10">
         <GraduationCap size={48} />
-        <span className="font-extrabold text-4xl tracking-tight">EduNotes</span>
+        <span className="font-extrabold text-4xl tracking-tight">prepartion</span>
       </Link>
 
       <div className="bg-white/80 backdrop-blur-xl p-8 sm:p-10 rounded-3xl shadow-2xl w-full max-w-md border border-white z-10">
@@ -270,7 +270,7 @@ export default function LoginPage() {
       </div>
       
       <p className="mt-8 text-center text-slate-500 text-sm max-w-sm z-10">
-        By continuing, you agree to EduNotes' Terms of Service and Privacy Policy.
+        By continuing, you agree to prepartion' Terms of Service and Privacy Policy.
       </p>
 
     </div>

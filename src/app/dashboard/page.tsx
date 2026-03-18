@@ -27,14 +27,13 @@ export default function StudentDashboard() {
   const [selectedStream, setSelectedStream] = useState<any>(null);
   const [selectedSubject, setSelectedSubject] = useState<any>(null);
 
-  // 🚨 BULLETPROOF MOBILE-FRIENDLY FETCHING
+  // 🚨 BULLETPROOF FETCHING: Ab sirf 2 call jayengi (1 User data, 1 Master API)
   useEffect(() => {
     let isMounted = true; 
 
     const loadDashboardData = async (uid: string) => {
       const t = Date.now(); 
 
-      // Yeh helper function ensure karega ki ek API ke fail hone se doosri cancel na ho
       const safeFetch = async (url: string, options: any = {}) => {
         try {
           const res = await fetch(url, { ...options, cache: "no-store" });
@@ -42,38 +41,38 @@ export default function StudentDashboard() {
           return await res.json();
         } catch (error) {
           console.error(`Error fetching ${url}:`, error);
-          return null; // Crash hone se bachayega
+          return null; 
         }
       };
 
-      // Saari APIs individually fetch hongi bina ek dusre ko block kiye
-      const [purData, clsData, strmData, subData, notesData] = await Promise.all([
+      // Sirf 2 API calls! Google app aur Vercel dono khush!
+      const [purData, masterData] = await Promise.all([
         safeFetch(`/api/purchases/my-notes?t=${t}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: uid }),
         }),
-        safeFetch(`/api/classes?t=${t}`),
-        safeFetch(`/api/streams?t=${t}`),
-        safeFetch(`/api/subjects?t=${t}`),
-        safeFetch(`/api/notes?t=${t}`)
+        safeFetch(`/api/dashboard-data?t=${t}`) // 👈 Hamari nayi Master API
       ]);
 
       if (isMounted) {
         if (purData) setMyPurchasedNotes(purData.notes || []);
-        if (clsData) setClasses(clsData.classes || []);
-        if (strmData) setStreams(strmData.streams || []);
-        if (subData) setSubjects(subData.subjects || []);
-        if (notesData) setNotes(notesData.notes || []);
         
-        setLoading(false); // Data aane ke baad hi spinner hatega
+        if (masterData) {
+          setClasses(masterData.classes || []);
+          setStreams(masterData.streams || []);
+          setSubjects(masterData.subjects || []);
+          setNotes(masterData.notes || []);
+        }
+        
+        setLoading(false); 
       }
     };
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         if (isMounted) setUser(currentUser);
-        loadDashboardData(currentUser.uid); // Direct data load function call karo
+        loadDashboardData(currentUser.uid); 
       } else {
         router.push("/login"); 
       }

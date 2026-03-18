@@ -27,48 +27,55 @@ export default function StudentDashboard() {
   const [selectedStream, setSelectedStream] = useState<any>(null);
   const [selectedSubject, setSelectedSubject] = useState<any>(null);
 
+  // 🚨 BULLETPROOF DATA FETCHING LOGIC
   useEffect(() => {
+    let isMounted = true; // Component unmount hone par error na aaye uske liye
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        setUser(currentUser);
+        if (isMounted) setUser(currentUser);
+
         try {
-          const res = await fetch("/api/purchases/my-notes", {
+          // 1. Pura fresh data lao (cache: "no-store" = hamesha naya data)
+          const purRes = await fetch("/api/purchases/my-notes", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: currentUser.uid })
+            body: JSON.stringify({ userId: currentUser.uid }),
+            cache: "no-store" 
           });
-          if (res.ok) {
-            const data = await res.json();
-            setMyPurchasedNotes(data.notes);
+          
+          if (purRes.ok && isMounted) {
+            const pData = await purRes.json();
+            setMyPurchasedNotes(pData.notes || []);
           }
+
+          // 2. Saare Public APIs ko ek sath call karo bina Cache ke
+          const [clsRes, strmRes, subRes, notesRes] = await Promise.all([
+            fetch("/api/classes", { cache: "no-store" }),
+            fetch("/api/streams", { cache: "no-store" }),
+            fetch("/api/subjects", { cache: "no-store" }),
+            fetch("/api/notes", { cache: "no-store" })
+          ]);
+
+          if (clsRes.ok && isMounted) setClasses((await clsRes.json()).classes || []);
+          if (strmRes.ok && isMounted) setStreams((await strmRes.json()).streams || []);
+          if (subRes.ok && isMounted) setSubjects((await subRes.json()).subjects || []);
+          if (notesRes.ok && isMounted) setNotes((await notesRes.json()).notes || []);
+
         } catch (error) {
-          console.error("Failed to fetch purchased notes");
+          console.error("Failed to fetch dashboard data:", error);
+        } finally {
+          if (isMounted) setLoading(false); // Sab load hone ke baad hi spinner hatega
         }
       } else {
         router.push("/login"); 
       }
     });
 
-    const fetchData = async () => {
-      try {
-        const [clsRes, strmRes, subRes, notesRes] = await Promise.all([
-          fetch("/api/classes"), fetch("/api/streams"),
-          fetch("/api/subjects"), fetch("/api/notes")
-        ]);
-        
-        if (clsRes.ok) setClasses((await clsRes.json()).classes);
-        if (strmRes.ok) setStreams((await strmRes.json()).streams);
-        if (subRes.ok) setSubjects((await subRes.json()).subjects);
-        if (notesRes.ok) setNotes((await notesRes.json()).notes);
-      } catch (error) {
-        console.error("Failed to fetch data");
-      } finally {
-        setLoading(false);
-      }
+    return () => {
+      isMounted = false;
+      unsubscribe();
     };
-
-    fetchData();
-    return () => unsubscribe();
   }, [router]);
 
   const handleLogout = async () => {

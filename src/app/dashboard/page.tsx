@@ -27,17 +27,20 @@ export default function StudentDashboard() {
   const [selectedStream, setSelectedStream] = useState<any>(null);
   const [selectedSubject, setSelectedSubject] = useState<any>(null);
 
-  // 🚨 BULLETPROOF DATA FETCHING LOGIC
+  // 🚨 ULTIMATE CACHE-BUSTER DATA FETCHING LOGIC
   useEffect(() => {
-    let isMounted = true; // Component unmount hone par error na aaye uske liye
+    let isMounted = true; 
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         if (isMounted) setUser(currentUser);
 
         try {
-          // 1. Pura fresh data lao (cache: "no-store" = hamesha naya data)
-          const purRes = await fetch("/api/purchases/my-notes", {
+          // Date.now() har millisecond change hota hai, isliye Next.js isko kabhi purana (cache) nahi samajh payega!
+          const t = Date.now(); 
+
+          // 1. Fetch Purchased Notes
+          const purRes = await fetch(`/api/purchases/my-notes?t=${t}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId: currentUser.uid }),
@@ -49,12 +52,12 @@ export default function StudentDashboard() {
             setMyPurchasedNotes(pData.notes || []);
           }
 
-          // 2. Saare Public APIs ko ek sath call karo bina Cache ke
+          // 2. Saare Public APIs ko Time-Stamp ke sath call karo
           const [clsRes, strmRes, subRes, notesRes] = await Promise.all([
-            fetch("/api/classes", { cache: "no-store" }),
-            fetch("/api/streams", { cache: "no-store" }),
-            fetch("/api/subjects", { cache: "no-store" }),
-            fetch("/api/notes", { cache: "no-store" })
+            fetch(`/api/classes?t=${t}`, { cache: "no-store" }),
+            fetch(`/api/streams?t=${t}`, { cache: "no-store" }),
+            fetch(`/api/subjects?t=${t}`, { cache: "no-store" }),
+            fetch(`/api/notes?t=${t}`, { cache: "no-store" })
           ]);
 
           if (clsRes.ok && isMounted) setClasses((await clsRes.json()).classes || []);
@@ -65,7 +68,7 @@ export default function StudentDashboard() {
         } catch (error) {
           console.error("Failed to fetch dashboard data:", error);
         } finally {
-          if (isMounted) setLoading(false); // Sab load hone ke baad hi spinner hatega
+          if (isMounted) setLoading(false); 
         }
       } else {
         router.push("/login"); 

@@ -61,7 +61,7 @@ export default function AdminDashboardHome() {
             Admin Overview 🚀
           </h1>
           <p className="text-slate-400 font-medium text-lg">
-            Here is what's happening with EduNotes today.
+            Here is what's happening with Prepartion today.
           </p>
         </div>
       </div>

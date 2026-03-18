@@ -27,49 +27,53 @@ export default function StudentDashboard() {
   const [selectedStream, setSelectedStream] = useState<any>(null);
   const [selectedSubject, setSelectedSubject] = useState<any>(null);
 
-  // 🚨 ULTIMATE CACHE-BUSTER DATA FETCHING LOGIC
+  // 🚨 BULLETPROOF MOBILE-FRIENDLY FETCHING
   useEffect(() => {
     let isMounted = true; 
 
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const loadDashboardData = async (uid: string) => {
+      const t = Date.now(); 
+
+      // Yeh helper function ensure karega ki ek API ke fail hone se doosri cancel na ho
+      const safeFetch = async (url: string, options: any = {}) => {
+        try {
+          const res = await fetch(url, { ...options, cache: "no-store" });
+          if (!res.ok) return null;
+          return await res.json();
+        } catch (error) {
+          console.error(`Error fetching ${url}:`, error);
+          return null; // Crash hone se bachayega
+        }
+      };
+
+      // Saari APIs individually fetch hongi bina ek dusre ko block kiye
+      const [purData, clsData, strmData, subData, notesData] = await Promise.all([
+        safeFetch(`/api/purchases/my-notes?t=${t}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: uid }),
+        }),
+        safeFetch(`/api/classes?t=${t}`),
+        safeFetch(`/api/streams?t=${t}`),
+        safeFetch(`/api/subjects?t=${t}`),
+        safeFetch(`/api/notes?t=${t}`)
+      ]);
+
+      if (isMounted) {
+        if (purData) setMyPurchasedNotes(purData.notes || []);
+        if (clsData) setClasses(clsData.classes || []);
+        if (strmData) setStreams(strmData.streams || []);
+        if (subData) setSubjects(subData.subjects || []);
+        if (notesData) setNotes(notesData.notes || []);
+        
+        setLoading(false); // Data aane ke baad hi spinner hatega
+      }
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         if (isMounted) setUser(currentUser);
-
-        try {
-          // Date.now() har millisecond change hota hai, isliye Next.js isko kabhi purana (cache) nahi samajh payega!
-          const t = Date.now(); 
-
-          // 1. Fetch Purchased Notes
-          const purRes = await fetch(`/api/purchases/my-notes?t=${t}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: currentUser.uid }),
-            cache: "no-store" 
-          });
-          
-          if (purRes.ok && isMounted) {
-            const pData = await purRes.json();
-            setMyPurchasedNotes(pData.notes || []);
-          }
-
-          // 2. Saare Public APIs ko Time-Stamp ke sath call karo
-          const [clsRes, strmRes, subRes, notesRes] = await Promise.all([
-            fetch(`/api/classes?t=${t}`, { cache: "no-store" }),
-            fetch(`/api/streams?t=${t}`, { cache: "no-store" }),
-            fetch(`/api/subjects?t=${t}`, { cache: "no-store" }),
-            fetch(`/api/notes?t=${t}`, { cache: "no-store" })
-          ]);
-
-          if (clsRes.ok && isMounted) setClasses((await clsRes.json()).classes || []);
-          if (strmRes.ok && isMounted) setStreams((await strmRes.json()).streams || []);
-          if (subRes.ok && isMounted) setSubjects((await subRes.json()).subjects || []);
-          if (notesRes.ok && isMounted) setNotes((await notesRes.json()).notes || []);
-
-        } catch (error) {
-          console.error("Failed to fetch dashboard data:", error);
-        } finally {
-          if (isMounted) setLoading(false); 
-        }
+        loadDashboardData(currentUser.uid); // Direct data load function call karo
       } else {
         router.push("/login"); 
       }

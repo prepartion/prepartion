@@ -27,7 +27,6 @@ export default function Home() {
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
 
-  // FAQ Toggle State
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   useEffect(() => {
@@ -53,6 +52,15 @@ export default function Home() {
 
   const popularBundles = notes.filter(note => !note.chapterId).slice(0, 6);
 
+  // 🚨 NAYA FUNCTION: Jo check karega ki user kahan jayega!
+  const handleAuthRedirect = () => {
+    if (user) {
+      router.push('/dashboard');
+    } else {
+      router.push('/login');
+    }
+  };
+
   const handleNoteClick = (noteId: string) => {
     if (!user) {
       router.push(`/login?redirect=/subject/${noteId}`);
@@ -62,14 +70,9 @@ export default function Home() {
   };
 
   const handleViewMore = () => {
-    if (!user) {
-      router.push("/login");
-    } else {
-      router.push("/dashboard");
-    }
+    handleAuthRedirect();
   };
 
-  // FAQs Data
   const faqs = [
     {
       question: "How do I access the notes after payment?",
@@ -92,7 +95,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans flex flex-col selection:bg-indigo-500 selection:text-white">
       
-      {/* 🌟 NAVBAR */}
       <header className="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50 border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -126,9 +128,9 @@ export default function Home() {
 
       <main className="flex-grow">
         
-        {/* 🌟 HERO SECTION */}
         <section className="relative w-full h-[85vh] min-h-[600px] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
+            {/* Make sure hero-bg.jpg is in your public folder */}
             <Image src={heroBg} alt="Prepartion Study Material" fill className="object-cover object-center" priority />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-slate-900/40"></div>
           </div>
@@ -136,7 +138,7 @@ export default function Home() {
           <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
             <div className="max-w-2xl space-y-8">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-200 font-bold text-sm uppercase tracking-wider shadow-inner">
-                <Sparkles size={16} className="text-yellow-400" /> Your Smart Companion for a better result
+                <Sparkles size={16} className="text-yellow-400" /> India's #1 Study Platform
               </div>
               <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.1] tracking-tight drop-shadow-lg">
                 Your Path to <br/>
@@ -146,15 +148,19 @@ export default function Home() {
                 Purchase premium, expert-curated PDF notes for Boards, JEE, NEET, and CUET. Instant downloads, easy-to-understand language, and everything you need to score 95%+.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center sm:justify-start">
-                <Link href="#notes" className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-black text-lg shadow-xl shadow-indigo-600/30 transition-all hover:-translate-y-1 flex justify-center items-center gap-2">
+                {/* 🚨 Yahan Button ko update kiya, ab yeh redirect karega */}
+                <button 
+                  onClick={handleAuthRedirect} 
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-black text-lg shadow-xl shadow-indigo-600/30 transition-all hover:-translate-y-1 flex justify-center items-center gap-2"
+                >
                   Explore Materials <ArrowRight size={20}/>
-                </Link>
+                </button>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 🌟 PRIMARY CATEGORIES */}
+        {/* 🌟 PRIMARY CATEGORIES (Ab clickable hain) */}
         <section id="categories" className="py-12 bg-white relative z-20 -mt-10 rounded-t-[3rem] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
@@ -162,18 +168,24 @@ export default function Home() {
             </div>
             <div className="flex flex-wrap justify-center gap-4 md:gap-6">
               {primaryCategories.map((cat, i) => (
-                <div key={i} className="bg-slate-50 border border-slate-200 px-6 py-3 rounded-2xl font-black text-slate-700 text-lg hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition-colors cursor-default shadow-sm">
+                <button 
+                  key={i} 
+                  onClick={handleAuthRedirect} // 🚨 Sabpe Redirect laga diya
+                  className="bg-slate-50 border border-slate-200 px-6 py-3 rounded-2xl font-black text-slate-700 text-lg hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm hover:-translate-y-1"
+                >
                   {cat}
-                </div>
+                </button>
               ))}
-              <div className="px-6 py-3 rounded-2xl font-bold text-slate-400 text-lg flex items-center">
+              <button 
+                onClick={handleAuthRedirect}
+                className="px-6 py-3 rounded-2xl font-bold text-slate-400 text-lg flex items-center hover:bg-slate-50 transition-colors"
+              >
                 + Many More
-              </div>
+              </button>
             </div>
           </div>
         </section>
 
-        {/* 🌟 DYNAMIC BUNDLES (Mobile Slider) */}
         <section id="notes" className="py-20 bg-slate-50 border-t border-slate-200/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
@@ -257,7 +269,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 🌟 SEO OPTIMIZED "HYPE" SECTION */}
         <section className="py-24 bg-white relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center max-w-4xl mx-auto mb-20">
@@ -276,7 +287,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-2xl font-black text-slate-800 mb-4">Highly Targeted Content</h3>
                 <p className="text-slate-600 leading-relaxed font-medium text-lg">
-                  No more solving 100's of questions from a single chapter. Our PDFs contain highlighted keywords, examiner's favorite topics, and strict syllabus-oriented points that directly appear in exams.
+                  No more reading 500-page textbooks. Our PDFs contain highlighted keywords, examiner's favorite topics, and strict syllabus-oriented points that directly appear in exams.
                 </p>
               </div>
 
@@ -296,13 +307,13 @@ export default function Home() {
                 </div>
                 <h3 className="text-2xl font-black text-slate-800 mb-4">Verified by Experts</h3>
                 <p className="text-slate-600 leading-relaxed font-medium text-lg">
-                  We have tried our level best to provide the best and accurate materials to boost your preparation and make your pathway towards success more convinient.        </p>
+                  Every single note bundle is reviewed by top educators and previous year toppers to ensure 100% accuracy. Study with confidence and secure your dream rank.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 🌟 SUCCESS STORIES (Testimonials) */}
         <section id="reviews" className="py-24 bg-slate-900 text-white relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
             <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-indigo-500 rounded-full blur-[150px]"></div>
@@ -337,7 +348,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 🌟 FREQUENTLY ASKED QUESTIONS (FAQ) */}
         <section id="faq" className="py-24 bg-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
@@ -373,7 +383,6 @@ export default function Home() {
 
       </main>
 
-      {/* 🌟 PREMIUM FOOTER WITH NEW LINKS */}
       <footer className="bg-slate-950 text-slate-400 pt-20 pb-10 border-t border-slate-900 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-16 mb-16">
@@ -402,7 +411,6 @@ export default function Home() {
                 <li><Link href="/contact" className="hover:text-indigo-400 transition flex items-center gap-2"><ArrowRight size={14}/> Contact Us</Link></li>
                 <li><Link href="/privacy-policy" className="hover:text-indigo-400 transition flex items-center gap-2"><ArrowRight size={14}/> Privacy Policy</Link></li>
                 <li><Link href="/terms" className="hover:text-indigo-400 transition flex items-center gap-2"><ArrowRight size={14}/> Terms & Conditions</Link></li>
-                {/* 🌟 NAYA REFUND POLICY LINK */}
                 <li><Link href="/refund-policy" className="hover:text-indigo-400 transition flex items-center gap-2"><ArrowRight size={14}/> Refund Policy</Link></li>
               </ul>
             </div>

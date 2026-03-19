@@ -5,7 +5,7 @@ import Link from "next/link";
 import { 
   Users, UploadCloud, School, IndianRupee, 
   Loader2, TrendingUp, Activity, BookOpen,
-  FileText, ArrowRight // Yeh imports miss ho gaye the
+  FileText, ArrowRight 
 } from "lucide-react";
 
 export default function AdminDashboardHome() {
@@ -18,11 +18,16 @@ export default function AdminDashboardHome() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchStats = async () => {
       try {
-        const res = await fetch('/api/admin/stats');
+        // 🚨 MAGIC FIX: Cache-Buster add kar diya taaki hamesha fresh data aaye
+        const t = Date.now();
+        const res = await fetch(`/api/admin/stats?t=${t}`, { cache: "no-store" });
         const data = await res.json();
-        if (res.ok) {
+        
+        if (res.ok && isMounted) {
           setStats({
             totalStudents: data.totalStudents || 0,
             totalNotes: data.totalNotes || 0,
@@ -31,13 +36,17 @@ export default function AdminDashboardHome() {
           });
         }
       } catch (error) {
-        console.error("Failed to fetch dashboard stats");
+        console.error("Failed to fetch dashboard stats", error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchStats();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   if (loading) {
@@ -122,7 +131,7 @@ export default function AdminDashboardHome() {
 
       </div>
 
-      {/* QUICK ACTIONS SECTION (Properly placed outside the grid) */}
+      {/* QUICK ACTIONS SECTION */}
       <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8">
         <h2 className="text-xl font-bold text-slate-800 mb-6">Quick Actions</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">

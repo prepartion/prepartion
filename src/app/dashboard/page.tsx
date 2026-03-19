@@ -460,7 +460,7 @@ export default function StudentDashboard() {
                             </div>
                             <div className="flex-1 mt-1">
                               <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-1 sm:mb-1.5 flex items-center gap-1">
-                                Chapter Note
+                                MCQ TEST SERIES
                               </p>
                               <h4 className="font-bold text-slate-800 text-sm sm:text-base leading-snug line-clamp-3">{note.title}</h4>
                             </div>

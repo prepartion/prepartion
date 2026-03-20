@@ -138,7 +138,7 @@ export default function Home() {
           <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
             <div className="max-w-2xl space-y-8">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-200 font-bold text-sm uppercase tracking-wider shadow-inner">
-                <Sparkles size={16} className="text-yellow-400" /> India's #1 Study Platform
+                <Sparkles size={16} className="text-yellow-400" /> your Smart companion for a better Result
               </div>
               <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.1] tracking-tight drop-shadow-lg">
                 Your Path to <br/>
@@ -287,7 +287,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-2xl font-black text-slate-800 mb-4">Highly Targeted Content</h3>
                 <p className="text-slate-600 leading-relaxed font-medium text-lg">
-                  No more reading 500-page textbooks. Our PDFs contain highlighted keywords, examiner's favorite topics, and strict syllabus-oriented points that directly appear in exams.
+                  No more solving 100's of questions from a single chapter. Our PDFs contain highlighted keywords, examiner's favorite topics, and strict syllabus-oriented points that directly appear in exams.
                 </p>
               </div>
 
@@ -307,8 +307,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-2xl font-black text-slate-800 mb-4">Verified by Experts</h3>
                 <p className="text-slate-600 leading-relaxed font-medium text-lg">
-                  Every single note bundle is reviewed by top educators and previous year toppers to ensure 100% accuracy. Study with confidence and secure your dream rank.
-                </p>
+We have tried our level best to provide the best and accurate materials to boost your preparation and make your pathway towards success more convinient.                </p>
               </div>
             </div>
           </div>
